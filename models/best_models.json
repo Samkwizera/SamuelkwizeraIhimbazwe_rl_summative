@@ -1,0 +1,27 @@
+{
+  "dqn": {
+    "run": "dqn_02",
+    "path": "models/dqn/dqn_02.pt",
+    "mean_return": -6.901533905049394,
+    "mean_stunted": 1.0
+  },
+  "reinforce": {
+    "run": "reinforce_04",
+    "path": "models/pg/reinforce_04.pt",
+    "mean_return": 1.7632623938899321,
+    "mean_stunted": 0.75
+  },
+  "ppo": {
+    "run": "ppo_11",
+    "path": "models/pg/ppo_11.pt",
+    "mean_return": 5.339462285115578,
+    "mean_stunted": 0.63
+  },
+  "a2c": {
+    "run": "a2c_04",
+    "path": "models/pg/a2c_04.pt",
+    "mean_return": -0.10561320104681968,
+    "mean_stunted": 0.88
+  },
+  "overall": "ppo"
+}
