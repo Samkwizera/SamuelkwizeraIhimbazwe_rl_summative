@@ -1,0 +1,24 @@
+[project]
+name = "rl-summative"
+version = "0.1.0"
+description = "RL agent that helps a community health worker plan follow-ups to prevent child stunting in rural Rwanda (DQN, REINFORCE, PPO, A2C with TorchRL)."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "gymnasium>=1.4.0",
+    "matplotlib>=3.11.2",
+    "numpy>=2.5.5",
+    "pandas>=3.1.1",
+    "tensordict>=0.15.6",
+    "torch>=2.15.0",
+    "torchrl>=0.15.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
