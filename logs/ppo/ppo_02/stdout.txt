@@ -1,0 +1,17 @@
+[92m2026-11-18 13:13:07,647 [torchrl][INFO][0m    Initialized LazyTensorStorage with torch.Size([1024]) shape[92m [END][0m
+[ppo ppo_02] frames   20480 | train return   -19.6 | eval   -26.8 stunted 1.75 fail 0.10 |    39s
+[ppo ppo_02] frames   40960 | train return   -17.3 | eval   -29.9 stunted 1.65 fail 0.30 |    83s
+[ppo ppo_02] frames   60416 | train return   -12.5 | eval   -21.5 stunted 1.10 fail 0.20 |   122s
+[ppo ppo_02] frames   80896 | train return   -13.9 | eval   -32.8 stunted 1.35 fail 0.30 |   160s
+[ppo ppo_02] frames  100352 | train return   -10.1 | eval   -10.1 stunted 0.95 fail 0.05 |   200s
+[ppo ppo_02] frames  120832 | train return    -6.0 | eval    -6.8 stunted 0.95 fail 0.00 |   240s
+[ppo ppo_02] frames  140288 | train return   -18.1 | eval   -18.2 stunted 1.10 fail 0.15 |   277s
+[ppo ppo_02] frames  160768 | train return   -11.8 | eval   -16.2 stunted 1.15 fail 0.05 |   315s
+[ppo ppo_02] frames  180224 | train return   -12.2 | eval   -17.5 stunted 1.10 fail 0.15 |   355s
+[ppo ppo_02] frames  200704 | train return   -10.9 | eval   -21.2 stunted 1.35 fail 0.20 |   394s
+[ppo ppo_02] frames  220160 | train return   -17.8 | eval   -15.1 stunted 1.20 fail 0.00 |   438s
+[ppo ppo_02] frames  240640 | train return    -7.8 | eval    -8.3 stunted 0.95 fail 0.05 |   479s
+[ppo ppo_02] frames  260096 | train return    -0.5 | eval     3.4 stunted 0.65 fail 0.05 |   516s
+[ppo ppo_02] frames  280576 | train return    -8.5 | eval    -5.3 stunted 0.90 fail 0.10 |   555s
+[ppo ppo_02] frames  300032 | train return    -3.8 | eval    -8.8 stunted 1.00 fail 0.10 |   592s
+[ppo ppo_02] done: eval return -5.5 stunted 1.08 (9.9 min)

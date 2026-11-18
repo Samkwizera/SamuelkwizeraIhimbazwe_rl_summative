@@ -1,0 +1,17 @@
+[92m2026-11-18 12:42:25,221 [torchrl][INFO][0m    Initialized LazyTensorStorage with torch.Size([50000]) shape[92m [END][0m
+[dqn dqn_06] frames   20032 | train return   -17.5 | eval   -31.8 stunted 1.70 fail 0.15 |    65s
+[dqn dqn_06] frames   40000 | train return   -18.2 | eval   -30.6 stunted 1.65 fail 0.15 |   137s
+[dqn dqn_06] frames   60032 | train return   -13.5 | eval   -25.2 stunted 1.40 fail 0.05 |   210s
+[dqn dqn_06] frames   80000 | train return   -22.5 | eval   -22.8 stunted 1.50 fail 0.00 |   277s
+[dqn dqn_06] frames  100032 | train return   -26.1 | eval   -24.1 stunted 1.60 fail 0.00 |   342s
+[dqn dqn_06] frames  120000 | train return   -23.5 | eval   -15.5 stunted 0.90 fail 0.10 |   409s
+[dqn dqn_06] frames  140032 | train return   -22.9 | eval   -23.3 stunted 1.45 fail 0.00 |   475s
+[dqn dqn_06] frames  160000 | train return   -27.1 | eval   -31.5 stunted 1.60 fail 0.15 |   547s
+[dqn dqn_06] frames  180032 | train return   -30.5 | eval   -30.6 stunted 1.40 fail 0.10 |   612s
+[dqn dqn_06] frames  200000 | train return   -31.6 | eval   -28.9 stunted 1.55 fail 0.05 |   677s
+[dqn dqn_06] frames  220032 | train return   -30.6 | eval   -39.6 stunted 1.85 fail 0.10 |   743s
+[dqn dqn_06] frames  240000 | train return   -33.0 | eval   -47.2 stunted 1.95 fail 0.25 |   808s
+[dqn dqn_06] frames  260032 | train return   -44.5 | eval   -57.0 stunted 2.25 fail 0.35 |   879s
+[dqn dqn_06] frames  280000 | train return   -44.5 | eval   -47.7 stunted 2.00 fail 0.15 |   946s
+[dqn dqn_06] frames  300032 | train return   -43.3 | eval   -44.1 stunted 1.80 fail 0.30 |  1014s
+[dqn dqn_06] done: eval return -22.2 stunted 1.30 (17.0 min)

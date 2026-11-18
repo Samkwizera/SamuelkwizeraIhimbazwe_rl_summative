@@ -1,0 +1,16 @@
+[reinforce reinforce_05] frames   20448 | train return   -22.6 | eval   -42.1 stunted 1.65 fail 0.30 |    29s
+[reinforce reinforce_05] frames   40269 | train return   -19.6 | eval   -37.5 stunted 1.55 fail 0.25 |    57s
+[reinforce reinforce_05] frames   60216 | train return    -9.1 | eval   -34.4 stunted 1.75 fail 0.15 |    84s
+[reinforce reinforce_05] frames   80205 | train return    -6.2 | eval   -27.3 stunted 1.30 fail 0.15 |   113s
+[reinforce reinforce_05] frames  100251 | train return    -9.3 | eval   -37.7 stunted 1.65 fail 0.20 |   141s
+[reinforce reinforce_05] frames  120537 | train return   -19.9 | eval   -29.6 stunted 1.65 fail 0.10 |   170s
+[reinforce reinforce_05] frames  140601 | train return   -12.0 | eval   -27.7 stunted 1.35 fail 0.10 |   198s
+[reinforce reinforce_05] frames  160515 | train return   -16.1 | eval   -16.8 stunted 1.15 fail 0.10 |   229s
+[reinforce reinforce_05] frames  180051 | train return    -7.5 | eval   -18.4 stunted 1.15 fail 0.15 |   258s
+[reinforce reinforce_05] frames  200454 | train return    -6.2 | eval   -21.7 stunted 1.35 fail 0.10 |   287s
+[reinforce reinforce_05] frames  220464 | train return    -7.6 | eval   -24.3 stunted 1.35 fail 0.00 |   315s
+[reinforce reinforce_05] frames  240519 | train return    -8.3 | eval   -11.7 stunted 1.05 fail 0.15 |   342s
+[reinforce reinforce_05] frames  260580 | train return    -7.8 | eval   -26.2 stunted 1.30 fail 0.15 |   370s
+[reinforce reinforce_05] frames  280029 | train return    -4.1 | eval   -13.2 stunted 0.95 fail 0.15 |   396s
+[reinforce reinforce_05] frames  300516 | train return    -8.9 | eval   -24.6 stunted 1.40 fail 0.05 |   423s
+[reinforce reinforce_05] done: eval return -15.4 stunted 1.20 (7.1 min)

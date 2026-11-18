@@ -1,0 +1,16 @@
+[a2c a2c_01] frames   20096 | train return   -20.5 | eval   -34.4 stunted 1.50 fail 0.20 |    34s
+[a2c a2c_01] frames   40064 | train return   -15.8 | eval   -40.2 stunted 1.70 fail 0.25 |    65s
+[a2c a2c_01] frames   60032 | train return    -9.2 | eval   -32.1 stunted 1.65 fail 0.15 |    96s
+[a2c a2c_01] frames   80000 | train return   -15.0 | eval   -32.1 stunted 1.55 fail 0.20 |   127s
+[a2c a2c_01] frames  100096 | train return   -12.2 | eval   -20.5 stunted 1.25 fail 0.10 |   158s
+[a2c a2c_01] frames  120064 | train return   -15.6 | eval   -32.5 stunted 1.60 fail 0.15 |   190s
+[a2c a2c_01] frames  140032 | train return   -13.2 | eval   -13.6 stunted 1.25 fail 0.00 |   222s
+[a2c a2c_01] frames  160000 | train return    -9.5 | eval   -12.7 stunted 1.10 fail 0.05 |   257s
+[a2c a2c_01] frames  180096 | train return    -8.5 | eval   -10.8 stunted 1.05 fail 0.15 |   291s
+[a2c a2c_01] frames  200064 | train return   -11.8 | eval   -15.4 stunted 1.15 fail 0.10 |   322s
+[a2c a2c_01] frames  220032 | train return   -15.5 | eval    -7.5 stunted 1.05 fail 0.05 |   354s
+[a2c a2c_01] frames  240000 | train return   -18.5 | eval    -5.9 stunted 1.05 fail 0.00 |   385s
+[a2c a2c_01] frames  260096 | train return    -9.0 | eval     0.2 stunted 0.70 fail 0.00 |   417s
+[a2c a2c_01] frames  280064 | train return   -12.0 | eval   -25.1 stunted 1.35 fail 0.15 |   448s
+[a2c a2c_01] frames  300032 | train return    -6.5 | eval   -17.7 stunted 1.35 fail 0.15 |   479s
+[a2c a2c_01] done: eval return -4.0 stunted 0.90 (8.1 min)
