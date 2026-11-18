@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stunting Care Simulation</title>
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.min.js", "three/addons/": "./vendor/addons/" } }
+</script>
+</head>
+<body>
+<div id="scene"></div>
+
+<header id="topbar">
+  <div class="title">
+    <strong>Stunting Care Planner</strong>
+    <span id="scenario">scenario: -</span>
+  </div>
+  <div class="stats">
+    <div class="stat"><span class="label">Week</span><span id="week">0 / 26</span></div>
+    <div class="stat"><span class="label">Day</span><span id="day">-</span></div>
+    <div class="stat"><span class="label">Supplement stock</span><span id="stock">-</span></div>
+    <div class="stat"><span class="label">Referrals left</span><span id="referrals">-</span></div>
+    <div class="stat"><span class="label">Stunted</span><span id="stunted">-</span></div>
+    <div class="stat"><span class="label">Episode return</span><span id="return">0.0</span></div>
+  </div>
+</header>
+
+<aside id="log">
+  <h2>CHW activity</h2>
+  <div id="current-action">waiting for agent...</div>
+  <ol id="entries"></ol>
+</aside>
+
+<section id="chart-box">
+  <h2>Cumulative reward</h2>
+  <canvas id="chart" width="320" height="120"></canvas>
+</section>
+
+<footer id="legend">
+  <span><b>Pillar</b>&nbsp;= true HAZ (hidden from agent):</span>
+  <span><i class="swatch" style="background:#3fa34d"></i>HAZ &ge; -1</span>
+  <span><i class="swatch" style="background:#e3a72f"></i>-2 to -1 (at risk)</span>
+  <span><i class="swatch" style="background:#d9452b"></i>&lt; -2 stunted</span>
+  <span><i class="swatch" style="background:#7a1010"></i>&lt; -3 severe</span>
+  <span><i class="swatch ring"></i>last measured HAZ</span>
+  <span><i class="swatch" style="background:#f2c94c"></i>on supplement</span>
+  <span><i class="swatch" style="background:#ff3b3b;border-radius:50%"></i>ill</span>
+  <span><i class="swatch" style="background:#2f80ed"></i>in treatment</span>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
