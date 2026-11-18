@@ -1,13 +1,16 @@
 import numpy as np
 
-from environment.custom_env import MIN_SUPPLEMENT_AGE, StuntingCareEnv
-
+from environment.custom_env import StuntingCareEnv
 
 # baselines only look at what the CHW can observe, never the true HAZ
 
 
 def random_policy(env, rng):
     return int(rng.integers(env.action_space.n))
+
+
+def random_valid_policy(env, rng):
+    return int(rng.choice(np.flatnonzero(env.action_masks())))
 
 
 def idle_policy(env, rng):
@@ -17,31 +20,30 @@ def idle_policy(env, rng):
 def greedy_policy(env, rng):
     # rule of thumb: always help whoever the risk model ranks highest
     n = env.n_children
+    mask = env.action_masks()
     order = np.argsort(-env.risk_score)
     for i in order:
-        if env.referrals_left > 0 and env.treat_weeks[i] == 0 and (
-            env.ill_reported[i] or env.obs_haz[i] < -2.8
-        ):
+        if mask[3 * n + i] and env.treat_weeks[i] == 0 and (env.ill_reported[i] or env.obs_haz[i] < -2.8):
             return 3 * n + int(i)
+    if mask[env.restock_action] and env.stock <= 1:
+        return env.restock_action
     for i in order:
-        if env.age[i] >= MIN_SUPPLEMENT_AGE and env.supp_weeks[i] < 2:
-            if env.stock > 0:
-                return 2 * n + int(i)
-            if env.stock < 10:
-                return env.restock_action
+        if mask[2 * n + i]:
+            return 2 * n + int(i)
     for i in order:
-        if env.week - env.last_screen_week[i] >= 4:
+        if mask[i] and env.week - env.last_screen_week[i] >= 4:
             return int(i)
     for i in order:
-        if env.week - env.last_counsel_week[i] >= 2:
+        if mask[n + i]:
             return n + int(i)
     return env.record_action
 
 
-BASELINES = {"random": random_policy, "idle": idle_policy, "greedy": greedy_policy}
+BASELINES = {"random": random_policy, "random_valid": random_valid_policy, "idle": idle_policy,
+             "greedy": greedy_policy}
 
 
-def evaluate_baseline(name, episodes=100, seed=10_000, scenario="standard"):
+def evaluate_baseline(name, episodes=100, seed=50_000, scenario="standard"):
     policy = BASELINES[name]
     env = StuntingCareEnv(scenario=scenario)
     rng = np.random.default_rng(seed)
@@ -63,13 +65,15 @@ def evaluate_baseline(name, episodes=100, seed=10_000, scenario="standard"):
         "scenario": scenario,
         "mean_return": float(np.mean(returns)),
         "std_return": float(np.std(returns)),
-        "mean_final_stunted": float(np.mean(stunted)),
+        "mean_stunted": float(np.mean(stunted)),
         "failure_rate": float(np.mean(failures)),
-        "mean_wasted_actions": float(np.mean(wasted)),
+        "mean_wasted": float(np.mean(wasted)),
     }
 
 
 if __name__ == "__main__":
     for scenario in ("standard", "high_risk", "low_resource"):
         for name in BASELINES:
-            print(evaluate_baseline(name, scenario=scenario))
+            r = evaluate_baseline(name, scenario=scenario)
+            print(f"{scenario:<13}{name:<13}return {r['mean_return']:7.1f} +/- {r['std_return']:5.1f}  "
+                  f"stunted {r['mean_stunted']:.2f}  fail {r['failure_rate']:.2f}  wasted {r['mean_wasted']:.1f}")

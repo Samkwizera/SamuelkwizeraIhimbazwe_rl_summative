@@ -10,13 +10,13 @@ from environment.custom_env import DAYS_PER_WEEK, N_WEEKS
 def rollout(env, seed, actions=None, rng_seed=0):
     rng = np.random.default_rng(rng_seed)
     obs, _ = env.reset(seed=seed)
-    trace = [obs]
+    trace = [obs["observation"]]
     rewards = []
     done = False
     while not done:
         a = int(rng.integers(env.action_space.n)) if actions is None else actions(env)
         obs, r, term, trunc, info = env.step(a)
-        trace.append(obs)
+        trace.append(obs["observation"])
         rewards.append(r)
         done = term or trunc
     return np.array(trace), np.array(rewards), term, trunc, info
@@ -35,7 +35,7 @@ def test_registered_with_gymnasium():
 def test_spaces():
     env = StuntingCareEnv()
     assert env.action_space.n == 4 * 6 + 2
-    assert env.observation_space.shape == (6 * 12 + 4,)
+    assert env.observation_space["observation"].shape == (6 * 12 + 5,)
     names = {env.action_name(a) for a in range(env.action_space.n)}
     assert len(names) == env.action_space.n
 
@@ -85,9 +85,22 @@ def test_wasted_actions_are_penalised():
     env.age[0] = 3.0  # too young for Shisha Kibondo
     _, r, *_, info = env.step(2 * env.n_children + 0)
     assert info["wasted"] and r < 0
-    env.stock = 12
+    env.stock = 6
     _, _, *_, info = env.step(env.restock_action)
     assert info["wasted"]
+
+
+def test_mask_matches_wasted_actions():
+    env = StuntingCareEnv()
+    rng = np.random.default_rng(0)
+    env.reset(seed=4)
+    for _ in range(60):
+        mask = env.action_masks()
+        a = int(rng.integers(env.action_space.n))
+        _, _, term, trunc, info = env.step(a)
+        assert info["wasted"] == (not mask[a])
+        if term or trunc:
+            break
 
 
 def test_screen_reveals_true_haz():

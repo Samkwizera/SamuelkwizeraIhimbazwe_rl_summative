@@ -13,8 +13,9 @@ SEVERE_HAZ = -3.0
 
 ACTION_TYPES = ("SCREEN", "COUNSEL", "SUPPLEMENT", "REFER")
 
-MAX_STOCK = 12
-RESTOCK_AMOUNT = 6
+MAX_STOCK = 6
+RESTOCK_AMOUNT = 4
+RESTOCK_PERIOD_WEEKS = 4  # the health centre only releases packs once a month
 SUPPLEMENT_WEEKS = 4  # one pack of Shisha Kibondo lasts about a month
 TREATMENT_WEEKS = 3
 REFERRAL_PERIOD_WEEKS = 4
@@ -26,7 +27,7 @@ R_RECOVERY = 5.0
 R_EARLY_DETECT = 3.0
 R_LATE_DETECT = 1.0
 R_WASTED = -0.5
-R_UNNEEDED_REFERRAL = -1.0
+R_UNNEEDED_REFERRAL = -2.0
 R_FAILURE = -20.0
 R_FINAL_OK = 5.0
 R_FINAL_STUNTED = -5.0
@@ -45,16 +46,16 @@ CHILD_FEATURE_NAMES = (
     "treatment_weeks_left",
     "weeks_since_counsel",
 )
-GLOBAL_FEATURE_NAMES = ("stock", "referrals_left", "day_of_week", "weeks_remaining")
+GLOBAL_FEATURE_NAMES = ("stock", "referrals_left", "weeks_since_restock", "day_of_week", "weeks_remaining")
 
 # rough prevalences, standard is close to Rwanda DHS 2019-20 (about 1 in 3 children stunted)
 SCENARIOS = {
     "standard": dict(p_food=0.40, p_sanit=0.45, p_edu=0.35, p_ubudehe=0.30,
-                     haz_shift=0.0, stock=6, referrals=2),
+                     haz_shift=0.0, stock=3, referrals=2),
     "high_risk": dict(p_food=0.60, p_sanit=0.65, p_edu=0.50, p_ubudehe=0.45,
-                      haz_shift=-0.3, stock=6, referrals=2),
+                      haz_shift=-0.3, stock=3, referrals=2),
     "low_resource": dict(p_food=0.40, p_sanit=0.45, p_edu=0.35, p_ubudehe=0.30,
-                         haz_shift=0.0, stock=2, referrals=1),
+                         haz_shift=0.0, stock=1, referrals=1),
 }
 
 
@@ -81,7 +82,11 @@ class StuntingCareEnv(gym.Env):
         self.action_space = spaces.Discrete(self.record_action + 1)
 
         obs_dim = n_children * len(CHILD_FEATURE_NAMES) + len(GLOBAL_FEATURE_NAMES)
-        self.observation_space = spaces.Box(0.0, 1.0, shape=(obs_dim,), dtype=np.float32)
+        # the mask mirrors a CHW app greying out options that are not possible right now
+        self.observation_space = spaces.Dict({
+            "observation": spaces.Box(0.0, 1.0, shape=(obs_dim,), dtype=np.float32),
+            "action_mask": spaces.MultiBinary(int(self.action_space.n)),
+        })
 
         self._renderer = None
         self._last_info = {}
@@ -109,6 +114,17 @@ class StuntingCareEnv(gym.Env):
             + self.np_random.normal(0.0, 0.25, self.n_children)
         )
         self.risk_score = 1.0 / (1.0 + np.exp(-z))
+
+    def action_masks(self):
+        n, w = self.n_children, self.week
+        mask = np.zeros(self.action_space.n, dtype=np.int8)
+        mask[:n] = w - self.last_screen_week >= 2
+        mask[n:2 * n] = w - self.last_counsel_week >= 2
+        mask[2 * n:3 * n] = (self.stock > 0) & (self.age >= MIN_SUPPLEMENT_AGE) & (self.supp_weeks < 2)
+        mask[3 * n:4 * n] = self.referrals_left > 0
+        mask[self.restock_action] = self.stock < MAX_STOCK and w - self.last_restock_week >= RESTOCK_PERIOD_WEEKS
+        mask[self.record_action] = 1
+        return mask
 
     def _measure(self, i):
         self.obs_haz[i] = self.haz[i] + self.np_random.normal(0.0, 0.05)
@@ -153,6 +169,7 @@ class StuntingCareEnv(gym.Env):
         self.detected = self.stunted & (self.obs_haz < STUNTING_HAZ)
 
         self.stock = cfg["stock"]
+        self.last_restock_week = -RESTOCK_PERIOD_WEEKS
         self.referral_quota = cfg["referrals"]
         self.referrals_left = self.referral_quota
         self._update_risk_scores()
@@ -165,53 +182,39 @@ class StuntingCareEnv(gym.Env):
     def step(self, action):
         kind, i = self.decode_action(action)
         reward = 0.0
-        wasted = False
+        wasted = not self.action_masks()[int(action)]
         events = []
-
-        if kind == "SCREEN":
-            if self.week - self.last_screen_week[i] < 2:
-                wasted = True
-            else:
-                self._measure(i)
-                if self.stunted[i] and not self.detected[i]:
-                    self.detected[i] = True
-                    early = self.week - self.stunted_since[i] <= 2
-                    reward += R_EARLY_DETECT if early else R_LATE_DETECT
-                    events.append(f"Child {i + 1} found stunted ({'early' if early else 'late'})")
-        elif kind == "COUNSEL":
-            if self.week - self.last_counsel_week[i] < 2:
-                wasted = True
-            else:
-                self.last_counsel_week[i] = self.week
-                self.counsel_boost[i] = 0.02
-                self.adherence[i] = min(0.95, self.adherence[i] + 0.1)
-        elif kind == "SUPPLEMENT":
-            if self.stock <= 0 or self.age[i] < MIN_SUPPLEMENT_AGE or self.supp_weeks[i] >= 2:
-                wasted = True
-            else:
-                self.stock -= 1
-                self.supp_weeks[i] = SUPPLEMENT_WEEKS
-        elif kind == "REFER":
-            if self.referrals_left <= 0:
-                wasted = True
-            else:
-                self.referrals_left -= 1
-                if not self.ill[i] and self.haz[i] >= STUNTING_HAZ:
-                    reward += R_UNNEEDED_REFERRAL
-                    events.append(f"Child {i + 1} referred but was not at risk")
-                self.ill[i] = False
-                self.treat_weeks[i] = TREATMENT_WEEKS
-                self._measure(i)  # the health centre measures the child too
-                if self.stunted[i]:
-                    self.detected[i] = True
-        elif kind == "RESTOCK":
-            if self.stock >= MAX_STOCK - 2:
-                wasted = True
-            else:
-                self.stock = min(MAX_STOCK, self.stock + RESTOCK_AMOUNT)
 
         if wasted:
             reward += R_WASTED
+        elif kind == "SCREEN":
+            self._measure(i)
+            if self.stunted[i] and not self.detected[i]:
+                self.detected[i] = True
+                early = self.week - self.stunted_since[i] <= 2
+                reward += R_EARLY_DETECT if early else R_LATE_DETECT
+                events.append(f"Child {i + 1} found stunted ({'early' if early else 'late'})")
+        elif kind == "COUNSEL":
+            # caregivers with little schooling gain the most from counselling
+            self.last_counsel_week[i] = self.week
+            self.counsel_boost[i] = 0.01 + 0.015 * self.edu[i]
+            self.adherence[i] = min(0.95, self.adherence[i] + 0.05 + 0.1 * self.edu[i])
+        elif kind == "SUPPLEMENT":
+            self.stock -= 1
+            self.supp_weeks[i] = SUPPLEMENT_WEEKS
+        elif kind == "REFER":
+            self.referrals_left -= 1
+            if not self.ill[i] and self.haz[i] >= STUNTING_HAZ:
+                reward += R_UNNEEDED_REFERRAL
+                events.append(f"Child {i + 1} referred but was not at risk")
+            self.ill[i] = False
+            self.treat_weeks[i] = TREATMENT_WEEKS
+            self._measure(i)  # the health centre measures the child too
+            if self.stunted[i]:
+                self.detected[i] = True
+        elif kind == "RESTOCK":
+            self.stock = min(MAX_STOCK, self.stock + RESTOCK_AMOUNT)
+            self.last_restock_week = self.week
 
         self.steps += 1
         self.day += 1
@@ -242,7 +245,9 @@ class StuntingCareEnv(gym.Env):
         age_factor = np.clip(1.2 - 0.025 * self.age, 0.5, 1.2)
         drift = -(0.01 + 0.05 * self.risk_load)
         illness = -0.05 * self.ill
-        supplement = 0.06 * self.adherence * age_factor * (self.supp_weeks > 0)
+        # food helps most where food is short and the child is already faltering
+        need = (0.4 + 0.6 * self.food) * np.where(self.haz < -1.0, 1.0, 0.5)
+        supplement = 0.08 * self.adherence * age_factor * need * (self.supp_weeks > 0)
         counsel = self.counsel_boost * age_factor
         treatment = 0.07 * (self.treat_weeks > 0)
         dhaz = drift + illness + supplement + counsel + treatment + rng.normal(0.0, 0.015, n)
@@ -312,11 +317,12 @@ class StuntingCareEnv(gym.Env):
         glob = [
             self.stock / MAX_STOCK,
             self.referrals_left / max(self.referral_quota, 1),
+            min(self.week - self.last_restock_week, RESTOCK_PERIOD_WEEKS) / RESTOCK_PERIOD_WEEKS,
             self.day / (DAYS_PER_WEEK - 1),
             (self.n_weeks - self.week) / self.n_weeks,
         ]
-        obs = np.concatenate([child.ravel(), glob])
-        return np.clip(obs, 0.0, 1.0).astype(np.float32)
+        obs = np.clip(np.concatenate([child.ravel(), glob]), 0.0, 1.0).astype(np.float32)
+        return {"observation": obs, "action_mask": self.action_masks()}
 
     def _info(self, action, wasted, events):
         return {
